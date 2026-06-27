@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { productsData } from '../data/products';
 import { getProductsByCategory } from '../data/localDb';
 import { FaArrowLeft } from 'react-icons/fa';
-import '../components/PageDefaults.css';
+import './PageDefaults.css';
 
 const CategoryPage = () => {
   const { categoryId } = useParams();
