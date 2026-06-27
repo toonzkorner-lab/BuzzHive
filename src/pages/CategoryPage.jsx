@@ -1,92 +1,99 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { productsData } from '../data/products';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../firebase';
-import './PageDefaults.css';
+import { getProductsByCategory } from '../data/localDb';
+import { FaArrowLeft } from 'react-icons/fa';
+import '../components/PageDefaults.css';
 
 const CategoryPage = () => {
   const { categoryId } = useParams();
-  const categoryData = productsData.find(c => c.id === categoryId);
-  
-  const [firebaseItems, setFirebaseItems] = useState([]);
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  const category = productsData.find(c => c.id === categoryId);
 
   useEffect(() => {
-    const fetchCategoryItems = async () => {
-      try {
-        const q = query(collection(db, "products"), where("category", "==", categoryId));
-        const querySnapshot = await getDocs(q);
-        const items = [];
-        querySnapshot.forEach((doc) => {
-          items.push({ id: doc.id, ...doc.data() });
-        });
-        setFirebaseItems(items);
-      } catch (err) {
-        console.log("Firebase not configured or no items found. Using local placeholders if any.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCategoryItems();
+    // Scroll to top on mount
+    window.scrollTo(0, 0);
+    
+    // Fetch from localDb
+    setLoading(true);
+    try {
+      const data = getProductsByCategory(categoryId);
+      setItems(data);
+    } catch (error) {
+      console.error("Error fetching items:", error);
+    }
+    setLoading(false);
   }, [categoryId]);
 
-  if (!categoryData) {
+  if (!category) {
     return (
-      <div className="page-wrapper pt-32 flex flex-col items-center justify-center text-center">
-        <h1 className="page-title text-gradient">Category Not Found</h1>
-        <Link to="/products" className="btn btn-primary mt-8">Back to Products</Link>
+      <div className="page-wrapper pt-32 text-center">
+        <h1 className="text-3xl font-bold mb-4">Category Not Found</h1>
+        <Link to="/products" className="text-primary hover:underline">Return to Products</Link>
       </div>
     );
   }
 
-  // Combine firebase items with local items for display
-  const itemsToDisplay = firebaseItems.length > 0 ? firebaseItems : (categoryData.items || []);
-
   return (
-    <div className="page-wrapper pt-32">
-      <div className="container max-w-5xl">
-        <div className="text-center mb-16 animate-fade-up">
-          <div className="text-6xl mb-6">{categoryData.icon}</div>
-          <h1 className="page-title text-gradient">{categoryData.title}</h1>
-          <p className="page-subtitle max-w-3xl mx-auto">{categoryData.longDescription}</p>
+    <div className="page-wrapper pt-32 pb-16">
+      <div className="container">
+        
+        {/* Header */}
+        <div className="mb-12">
+          <Link to="/products" className="inline-flex items-center gap-2 text-gray-400 hover:text-primary transition-colors mb-6">
+            <FaArrowLeft /> Back to all categories
+          </Link>
+          <div className="flex items-center gap-4 mb-4">
+            <span className="text-5xl">{category.icon}</span>
+            <h1 className="text-4xl md:text-5xl font-bold text-gradient">{category.title}</h1>
+          </div>
+          <p className="text-xl text-gray-300 max-w-3xl">{category.longDescription}</p>
         </div>
 
-        <div className="product-grid animate-fade-up delay-1">
-          {loading ? (
-            <p className="text-center text-gray-400">Loading products...</p>
-          ) : itemsToDisplay.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {itemsToDisplay.map((item, idx) => (
-                <div key={item.id || idx} className="glass p-4 rounded-xl flex flex-col group">
-                  <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden bg-black/40">
-                    {item.imageUrl || item.image ? (
-                      <img 
-                        src={item.imageUrl || item.image} 
-                        alt={item.title || item.name} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-500">No Image</div>
-                    )}
+        {/* Product Grid */}
+        {loading ? (
+          <div className="text-center py-20 text-gray-400">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+            Loading products...
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {items.length === 0 ? (
+              <div className="col-span-full text-center py-20 glass rounded-2xl">
+                <p className="text-xl text-gray-400 mb-2">No products available in this category yet.</p>
+                <p className="text-gray-500">Check back soon for updates!</p>
+              </div>
+            ) : (
+              items.map((item) => (
+                <div key={item.id} className="glass rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-300 group flex flex-col">
+                  <div className="aspect-[4/3] bg-black/50 overflow-hidden relative">
+                    <img 
+                      src={item.image} 
+                      alt={item.name} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
-                  <h3 className="text-xl font-bold mb-2">{item.title || item.name}</h3>
-                  {item.price && <p className="text-primary font-bold mb-2">{item.price}</p>}
-                  <p className="text-gray-400 text-sm flex-grow">{item.description}</p>
+                  <div className="p-6 flex flex-col flex-grow">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-xl font-bold text-white pr-4">{item.name}</h3>
+                      <span className="text-primary font-bold bg-primary/10 px-3 py-1 rounded-full whitespace-nowrap">
+                        {item.price}
+                      </span>
+                    </div>
+                    <p className="text-gray-400 text-sm flex-grow mb-4">{item.description}</p>
+                    <button className="w-full btn btn-outline mt-auto py-2 hover:bg-primary hover:text-black transition-colors">
+                      View Details
+                    </button>
+                  </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center p-12 glass rounded-xl">
-              <h3 className="text-2xl font-bold mb-4">No products listed yet</h3>
-              <p className="text-gray-400">Check back soon or visit our store to see our full selection of {categoryData.title}!</p>
-            </div>
-          )}
-        </div>
+              ))
+            )}
+          </div>
+        )}
 
-        <div className="mt-16 text-center animate-fade-up delay-2">
-          <Link to="/products" className="btn btn-outline">← Back to All Categories</Link>
-        </div>
       </div>
     </div>
   );

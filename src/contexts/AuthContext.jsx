@@ -1,30 +1,43 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { auth } from '../firebase';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  return useContext(AuthContext);
+}
 
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    // Check local storage for session
+    const session = localStorage.getItem('buzzhive_admin_session');
+    if (session) {
+      setCurrentUser(JSON.parse(session));
+    }
+    setLoading(false);
+  }, []);
+
   const login = (email, password) => {
-    return signInWithEmailAndPassword(auth, email, password);
+    return new Promise((resolve, reject) => {
+      // Hardcoded login check
+      if (email === 'admin@buzzhive.com' && password === 'admin123') {
+        const user = { email: 'admin@buzzhive.com', uid: 'local-admin' };
+        setCurrentUser(user);
+        localStorage.setItem('buzzhive_admin_session', JSON.stringify(user));
+        resolve(user);
+      } else {
+        reject(new Error('Invalid credentials'));
+      }
+    });
   };
 
   const logout = () => {
-    return signOut(auth);
+    setCurrentUser(null);
+    localStorage.removeItem('buzzhive_admin_session');
+    return Promise.resolve();
   };
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
-      setLoading(false);
-    });
-    return unsubscribe;
-  }, []);
 
   const value = {
     currentUser,
@@ -37,4 +50,4 @@ export const AuthProvider = ({ children }) => {
       {!loading && children}
     </AuthContext.Provider>
   );
-};
+}
