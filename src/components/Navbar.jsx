@@ -16,8 +16,9 @@ const Navbar = () => {
   return (
     <nav className={`navbar ${scrolled ? 'scrolled glass' : ''}`}>
       <div className="container nav-container">
-        <Link to="/" className="logo flex items-center">
-          <img src="/logo.png" alt="The Buzz Hive Logo" className="h-12 w-auto object-contain" />
+        <Link to="/" className="logo flex items-center gap-2">
+          <span className="logo-icon text-2xl">🐝</span>
+          <span className="logo-text text-gradient font-bold text-xl">The Buzz Hive</span>
         </Link>
         
         <ul className="nav-links">
