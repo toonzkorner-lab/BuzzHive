@@ -1,0 +1,48 @@
+.page-wrapper {
+  min-height: 80vh;
+  padding-bottom: 4rem;
+}
+
+.pt-32 {
+  padding-top: 8rem; /* Enough to clear the sticky navbar */
+}
+
+.page-title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  margin-bottom: 1rem;
+}
+
+.page-subtitle {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  max-width: 600px;
+}
+
+.content-card {
+  padding: 2.5rem;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  background: var(--bg-card);
+}
+
+.mt-8 { margin-top: 2rem; }
+.mt-6 { margin-top: 1.5rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.pb-2 { padding-bottom: 0.5rem; }
+
+.text-xl { font-size: 1.25rem; }
+.font-bold { font-weight: 700; }
+.text-primary { color: var(--primary-color); }
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.flex { display: flex; }
+.justify-between { justify-content: space-between; }
+.border-b { border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+.hover-underline:hover { text-decoration: underline; }

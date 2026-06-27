@@ -1,0 +1,58 @@
+.floating-bees-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; /* Make sure they don't block clicks */
+  z-index: 500;
+  overflow: hidden;
+}
+
+.floating-bee {
+  position: absolute;
+  opacity: 1;
+  filter: drop-shadow(0 0 10px rgba(247, 185, 40, 0.3)); /* Slight honey glow */
+}
+
+@keyframes float1 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(20vw, -10vh) rotate(5deg); }
+  66% { transform: translate(-10vw, 20vh) rotate(-5deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes float2 {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  33% { transform: translate(-15vw, 15vh) scale(1.1) rotate(-10deg); }
+  66% { transform: translate(10vw, -15vh) scale(0.9) rotate(10deg); }
+  100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+}
+
+@keyframes float3 {
+  0% { transform: translate(0, 0) rotate(180deg); }
+  33% { transform: translate(25vw, 25vh) rotate(190deg); }
+  66% { transform: translate(-20vw, 10vh) rotate(170deg); }
+  100% { transform: translate(0, 0) rotate(180deg); }
+}
+
+.bee-1 {
+  top: 20%;
+  left: 10%;
+  width: 150px;
+  animation: float1 15s ease-in-out infinite;
+}
+
+.bee-2 {
+  top: 60%;
+  right: 15%;
+  width: 200px;
+  animation: float2 20s ease-in-out infinite;
+}
+
+.bee-3 {
+  top: 10%;
+  right: 25%;
+  width: 100px;
+  animation: float3 18s ease-in-out infinite;
+}
